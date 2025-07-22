@@ -1,0 +1,61 @@
+//このmacroは、フォルダを指定してImage sequenceを開いた後、ROIを複数選択すると、ROIのimage sequenceを抽出し、フォルダに保存する　加えて吸収面積の時間変化をcsvファイルとしてフォルダに保存する　検出感度はsetThsholdの値で変わる
+
+//タイムラプスのRAW画像が入ったフォルダの選択
+showMessage("Image sequenceを開いた後、ROIをrectangle選択し、このmacroを実行するとROIのimage sequenceを抽出・保存します。RAW画像が保存されているフォルダを選択してください"); 
+openDir = getDirectory("Choose a Directory"); 
+list = getFileList(openDir);//全ファイル名をlistに格納
+
+//選択したフォルダと同じ階層にROI Image directory作製
+slashsplit =split(openDir, "/");// slashごとに分割しslashsplit arrayに格納
+Array.print(slashsplit);
+print(slashsplit.length);
+print(slashsplit[slashsplit.length-1]);
+roiDir=replace(openDir, slashsplit[slashsplit.length-1],"ROI_" + slashsplit[slashsplit.length-1]);
+print(roiDir);
+File.makeDirectory(roiDir);
+print("ROI directory =", roiDir);
+
+//Pit Area Results directory作製
+ResultsDir = roiDir + "PitAreaResults/";
+File.makeDirectory(ResultsDir);
+print("Pit Area Results directory =", ResultsDir);
+
+//ROIの選択
+run("Image Sequence...", "dir=&openDir sort"); //&がないと開けない
+print("test");
+
+run("ROI Manager...");//ROIの位置情報の格納
+waitForUser("ROI managerにROIをAddでセットしたらOKをクリック（複数ROI設定可）"); 
+NumRoi = roiManager("count");	
+
+//ループを回して全画像を順次処理する
+for (j=0; j<NumRoi; j++){
+//ROIごとのフォルダ作成
+File.makeDirectory(roiDir + "/ROI" + j);
+	for (i=0; i<list.length; i++){
+		//指定した場所の画像を開く 
+		open(openDir+list[i]);
+		name = getTitle();
+		
+		//格納したROIを開いた画像に適用しclop画像を作成して保存
+		roiManager("Select", j);
+		run("Copy");
+		run("Internal Clipboard");
+		saveAs("Png", roiDir + "/ROI" + j + "/" + name);
+		
+		//Pit area算出処理
+		run("8-bit");
+		setAutoThreshold("Default");
+		setThreshold(0, 20);
+		run("Measure");
+
+		close();
+		close();
+	}
+	//Resultsの保存
+	saveAs("Results", ResultsDir + name + "ROI" + j + ".csv");
+	close("Results");
+
+}
+run("Close");
+roiManager("Delete");

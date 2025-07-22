@@ -1,0 +1,38 @@
+//画像フォルダを複数入れたフォルダを選択(このフォルダや画像のフォルダ中には画像と関係ないファイルやフォルダは入れてはいけない.njtファイルは除去必要)し、AVIファイルに変換する
+
+showMessage("Select Open Folder of Directories"); 
+openDirDir = getDirectory("Choose a Directory"); 
+dirlist = getFileList(openDirDir);
+
+print("openDirDir =", openDirDir);
+
+//配列「list」の中身をチラ見
+Array.show(dirlist); 
+
+//Movie directory作製
+movieDir = openDirDir + "Movie/";
+File.makeDirectory(movieDir);
+print("Movie directory =", movieDir);
+
+//ループを回して全画像を順次処理する
+for (i=0; i<dirlist.length; i++){
+	//指定した場所のフォルダを開く
+	openDir = openDirDir+dirlist[i];
+	list = getFileList(openDir);
+
+	//動画作製
+	run("Image Sequence...", "dir=&openDir sort");
+
+
+	//file name取得
+	name = getTitle() + ".avi";
+	Savename = movieDir + name;
+
+
+	//AVI保存 5fps
+	run("AVI... ", "compression=JPEG frame=5 save=Savename");
+
+	print("name =", name);
+
+	close();
+}
