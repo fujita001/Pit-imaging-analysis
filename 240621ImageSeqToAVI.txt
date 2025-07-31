@@ -1,4 +1,4 @@
-//画像フォルダを複数入れたフォルダを選択(このフォルダや画像のフォルダ中には画像と関係ないファイルやフォルダは入れてはいけない.njtファイルは除去必要)し、AVIファイルに変換する
+//Select a folder with multiple image folders (no files or folders unrelated to the images should be placed in this folder or in the folder of images .njt files need to be removed) and convert to AVI files
 
 showMessage("Select Open Folder of Directories"); 
 openDirDir = getDirectory("Choose a Directory"); 
@@ -6,30 +6,30 @@ dirlist = getFileList(openDirDir);
 
 print("openDirDir =", openDirDir);
 
-//配列「list」の中身をチラ見
+//Glimpse at the contents of the array "list
 Array.show(dirlist); 
 
-//Movie directory作製
+//Make Movie directory
 movieDir = openDirDir + "Movie/";
 File.makeDirectory(movieDir);
 print("Movie directory =", movieDir);
 
-//ループを回して全画像を順次処理する
+//Loop around and process all images sequentially
 for (i=0; i<dirlist.length; i++){
-	//指定した場所のフォルダを開く
+	//Open a folder in the specified location
 	openDir = openDirDir+dirlist[i];
 	list = getFileList(openDir);
 
-	//動画作製
+	//Make movie
 	run("Image Sequence...", "dir=&openDir sort");
 
 
-	//file name取得
+	//Get file name
 	name = getTitle() + ".avi";
 	Savename = movieDir + name;
 
 
-	//AVI保存 5fps
+	//Save AVI movie, 5fps
 	run("AVI... ", "compression=JPEG frame=5 save=Savename");
 
 	print("name =", name);
