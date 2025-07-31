@@ -5,61 +5,61 @@ import tkinter as tk
 
 def select_folder():
     """
-    フォルダを選択するダイアログを表示し、選択されたフォルダのパスを返す。
+    Displays a dialog to select a folder and returns the path to the selected folder.
 
     Returns:
-    - folder_path (str): 選択されたフォルダのパス
+    - folder_path (str): Path of the selected folder
     """
     root = tk.Tk()
     root.withdraw()
-    folder_path = filedialog.askdirectory(title="CSVファイルが保存されているフォルダを選択してください")
+    folder_path = filedialog.askdirectory(title="Please select the folder where the CSV file is stored")
     return folder_path
 
 def extract_sheet_name(file_name):
     """
-    ファイル名からシート名を抽出する。
+    Extract the sheet name from the file name.
 
     Args:
-    - file_name (str): ファイル名（例: "prefix_part1_part2_ROI123.csv"）
+    - file_name (str): File name (e.g., “prefix_part1_part2_ROI123.csv”)
 
     Returns:
-    - sheet_name (str): シート名（例: "part1_part2ROI123"）
+    - sheet_name (str): Sheet name (e.g., “part1_part2ROI123”)
     """
     try:
-        # ファイル名をアンダースコアで分割
+        # Split file names with underscores
         parts = file_name.split("_")
         if len(parts) < 4:
-            raise ValueError(f"ファイル名 '{file_name}' が期待する形式ではありません。")
+            raise ValueError(f"File name ‘{file_name}’ is not in the expected format.")
 
-        # 1つ目と3つ目のアンダースコアの間の部分を抽出
+        # Extract the portion between the first and third underscores
         middle_part = "_".join(parts[1:3])
         
-        # "ROI"以降の文字列を抽出
+        # Extract strings after "ROI
         roi_part = file_name.split("ROI")[-1].split(".")[0]
 
-        # シート名を組み立てる
+        # Assemble sheet name
         sheet_name = f"{middle_part}ROI{roi_part}"
         
-        # シート名の長さを調整（Excelの31文字制限）
+        # Adjust sheet name length (31 character limit in Excel)
         return sheet_name[:31]
     except Exception as e:
-        print(f"シート名生成エラー: {str(e)}")
+        print(f"Sheet name generation error: {str(e)}")
         return "InvalidSheetName"
 
 def merge_all_csv_to_excel(folder_path):
     """
-    指定されたフォルダ内のすべてのCSVファイルを1つのExcelファイルにまとめる。
+    Combine all CSV files in the specified folder into one Excel file.
 
     Args:
-    - folder_path (str): CSVファイルが格納されているルートフォルダのパス
+    - folder_path (str): Path of the root folder where the CSV file is stored
 
     Returns:
     - None
     """
-    # 保存先のExcelファイル
+    # Destination Excel file
     save_path = os.path.join(folder_path, "CombinedWorkbook.xlsx")
     
-    # ExcelWriterオブジェクトを作成
+    # Create an ExcelWriter object
     writer = pd.ExcelWriter(save_path, engine='xlsxwriter')
     
     for root, _, files in os.walk(folder_path):
@@ -69,27 +69,27 @@ def merge_all_csv_to_excel(folder_path):
             csv_path = os.path.join(root, csv_file)
             
             try:
-                # シート名を抽出
+                # Extract sheet name
                 sheet_name = extract_sheet_name(csv_file)
                 
-                # CSVファイルをDataFrameとして読み込む
+                # Import CSV files as DataFrames
                 df = pd.read_csv(csv_path, encoding='utf-8')
                 
-                # DataFrameをExcelの新しいシートに書き込む
+                # Write DataFrame to a new sheet in Excel
                 df.to_excel(writer, sheet_name=sheet_name, index=False)
             
             except Exception as e:
-                print(f"CSVファイル '{csv_file}' の処理中にエラーが発生しました: {str(e)}")
+                print(f"Error while processing CSV file ‘{csv_file}’: {str(e)}")
     
-    # Excelファイルを保存
+    # Save Excel file
     writer._save()
     writer.close()
-    print(f"CSVファイルがExcelファイル({save_path})にまとめられました！")
+    print(f"The CSV file has been compiled into an Excel file ({save_path})!")
 
 if __name__ == "__main__":
-    # フォルダを選択
+    # Select Folder
     root_folder = select_folder()
     if not root_folder:
-        print("フォルダが選択されませんでした。処理を中止します。")
+        print("No folder was selected. Abort the process.")
     else:
         merge_all_csv_to_excel(root_folder)
