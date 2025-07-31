@@ -1,12 +1,12 @@
-//このmacroは、フォルダを指定してImage sequenceを開いた後、ROIを複数選択すると、ROIのimage sequenceを抽出し、フォルダに保存する　加えて吸収面積の時間変化をcsvファイルとしてフォルダに保存する　検出感度はsetThsholdの値で変わる
+//This macro extracts image sequences of ROIs and saves them in a folder after opening image sequences by specifying a folder and selecting multiple ROIs. The detection sensitivity changes with the value of setThshold.
 
-//タイムラプスのRAW画像が入ったフォルダの選択
-showMessage("Image sequenceを開いた後、ROIをrectangle選択し、このmacroを実行するとROIのimage sequenceを抽出・保存します。RAW画像が保存されているフォルダを選択してください"); 
+//Select a folder with time-lapse RAW images
+showMessage("After opening the image sequence, select the ROI as rectangle and run this macro to extract and save the image sequence of the ROI."); 
 openDir = getDirectory("Choose a Directory"); 
-list = getFileList(openDir);//全ファイル名をlistに格納
+list = getFileList(openDir);//Store all file names in list
 
-//選択したフォルダと同じ階層にROI Image directory作製
-slashsplit =split(openDir, "/");// slashごとに分割しslashsplit arrayに格納
+//ROI Image directory created in the same hierarchy as the selected folder.
+slashsplit =split(openDir, "/");// Split into slashes and store in slashesplit array
 Array.print(slashsplit);
 print(slashsplit.length);
 print(slashsplit[slashsplit.length-1]);
@@ -15,35 +15,35 @@ print(roiDir);
 File.makeDirectory(roiDir);
 print("ROI directory =", roiDir);
 
-//Pit Area Results directory作製
+//Make Pit Area Results directory
 ResultsDir = roiDir + "PitAreaResults/";
 File.makeDirectory(ResultsDir);
 print("Pit Area Results directory =", ResultsDir);
 
-//ROIの選択
-run("Image Sequence...", "dir=&openDir sort"); //&がないと開けない
+//Select ROI
+run("Image Sequence...", "dir=&openDir sort"); //Cannot be opened without &.
 print("test");
 
-run("ROI Manager...");//ROIの位置情報の格納
-waitForUser("ROI managerにROIをAddでセットしたらOKをクリック（複数ROI設定可）"); 
+run("ROI Manager...");//Storing ROI location information
+waitForUser("Set ROI in ROI manager with Add and click OK (multiple ROIs can be set)."); 
 NumRoi = roiManager("count");	
 
-//ループを回して全画像を順次処理する
+//Loop around and process all images sequentially
 for (j=0; j<NumRoi; j++){
-//ROIごとのフォルダ作成
+//Create folders for each ROI
 File.makeDirectory(roiDir + "/ROI" + j);
 	for (i=0; i<list.length; i++){
-		//指定した場所の画像を開く 
+		//Open an image of the specified location
 		open(openDir+list[i]);
 		name = getTitle();
 		
-		//格納したROIを開いた画像に適用しclop画像を作成して保存
+		//Apply the stored ROI to the opened image to create a clop image and save it.
 		roiManager("Select", j);
 		run("Copy");
 		run("Internal Clipboard");
 		saveAs("Png", roiDir + "/ROI" + j + "/" + name);
 		
-		//Pit area算出処理
+		//Pit area calculation process
 		run("8-bit");
 		setAutoThreshold("Default");
 		setThreshold(0, 20);
