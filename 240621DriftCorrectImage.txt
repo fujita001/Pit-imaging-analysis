@@ -1,44 +1,44 @@
-//画像フォルダを複数入れたフォルダを選択(このフォルダや画像のフォルダ中には関係ないファイルやフォルダは入れてはいけない)
+//Choose a Directory of Directorys
 showMessage("Select Open Folder"); 
 openDirDir = getDirectory("Choose a Directory of Directorys"); 
 dirlist = getFileList(openDirDir);
 
 print("Directory for Directories =", openDirDir);
 
-//配列「list」の中身をチラ見
+//open folder name list
 Array.show(dirlist); 
 
-//corrected directory作製
+//Make drift corrected directory
 correctDirDir = openDirDir + "DriftCorrected/";
 File.makeDirectory(correctDirDir);
 print("corrected directory of directories =", correctDirDir);
 
-//ループを回して全画像を順次処理する
+//Loop around and process all images sequentially
 for (i=0; i<dirlist.length; i++){
-	//指定した場所のフォルダを開く
+	//open a folder in the specified location
 	openDir = openDirDir+dirlist[i];
 	list = getFileList(openDir);
 
-	//動画作製
+	//Make movies
 	File.openSequence(openDir);
-	run("Reverse"); //最初に大きなドリフトがあるので動いていない後ろのほうを基準にするために逆順に並べなおす
+	run("Reverse"); //Re-order in reverse order to make the first one with a large drift so that the back one, which is not moving, is the standard.
 
-	//folder & file name取得
+	//get folder & file name
 	seqName = getTitle();
 	print("folder & file name =", seqName);
 
-	//corrected directory作製
+	//Make corrected directory
 	correctDir = correctDirDir + seqName + "/";
 	File.makeDirectory(correctDir);
 	print("corrected directory =", correctDir);
 
-	//file name取得
+	//Get file name
 	correctnjt = correctDirDir + seqName + ".njt";
 	print("correctnjt path=", correctnjt);
 	run("F4DR Estimate Drift", "time=1 max=50 reference=[previous frame (better for live)] apply choose=correctnjt");
 
-	//TIFF保存 	
-	run("Reverse");//ドリフト修正完了したので元の順に並べなおす
+	//Save TIFF image 	
+	run("Reverse");//Drift correction completed and rearranged in original order
 	run("Image Sequence... ", "select=&correctDir dir=&correctDir format=TIFF use");
 	
 	close();
