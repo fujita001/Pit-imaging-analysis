@@ -4,7 +4,7 @@ This repository contains the Fiji, ImageJ macro and Python scripts used for data
 
 **"Clec4a2 deficiency promotes post-fission osteoclast cell death and suppresses acute inflammation-induced bone loss"**  
 Authors: Hirofumi Fujita et al.  
-Submitted to Journal of Bone and Mineral Research (2025)  
+Submitted to Bone (2025)  
 
 ## Contents
 - `240621DriftCorrectImage.txt`: Fiji macro for batch processing of drift correction of image sequence
